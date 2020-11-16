@@ -47,3 +47,53 @@ bubble(meuse,"lead")
 # again, the western part is higher
 # change colour
 bubble(meuse,"lead",col="red")
+
+#### 2020-11-16 ####
+# lecture #4 # installing the ggplot2 library 
+
+# 2020-11-16
+# lecture #4 # installing the ggplot2 library 
+
+# load the library
+library(ggplot2)
+
+# make a dataframe
+# biofuels
+biofuels<-c(120, 200, 350, 570, 750) #create an array using 'c'
+
+# oxidative enzymes
+oxidative<-c(1200, 1300, 21000, 34000, 50000)
+
+# making a dataframe
+d<-data.frame(biofuels,oxidative)
+
+# make a graph using ggplot
+fig1<-ggplot(d,aes(x=biofuels, y=oxidative))+ geom_point ()
+fig1
+
+# making it fancy by changing the point size and colour
+fig2<-ggplot(d,aes(x=biofuels, y=oxidative))+ geom_point (size = 5, col = "blue")
+fig2
+
+# can do this with lines too
+fig3<-ggplot(d,aes(x=biofuels, y=oxidative))+ geom_line ()
+fig3
+
+# let's use a higher size and different colour
+# points and lines
+fig4<-ggplot(d,aes(x=biofuels, y=oxidative))+ geom_point (size = 5, col = "blue")+ geom_line()
+fig4
+
+# we can use polygons, too
+fig5<-ggplot(d,aes(x=biofuels, y=oxidative))+ geom_polygon ()
+fig5
+
+# time to import data
+# tell R where to draw datasets from
+# set working directory
+setwd("C:/Users/kyras/Documents/First Term/Monitoring Ecosystems/Lab/")
+
+# call the data
+covid<-read.csv("covid_agg.csv", header=TRUE)
+covid
+

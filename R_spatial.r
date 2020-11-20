@@ -97,3 +97,33 @@ setwd("C:/Users/kyras/Documents/First Term/Monitoring Ecosystems/Lab/")
 covid<-read.csv("covid_agg.csv", header=TRUE)
 covid
 
+#### 2020-11-20 ####
+# lecture #5 
+
+# call ggplot
+library(ggplot2)
+
+# set working directory
+# I moved the folder to Documents to create a shorter path file
+setwd("C:/Lab/")
+
+# import the data
+# saying header=TRUE means that I want the first row of data in the .csv file to be the names of the columns
+# tells R that the data starts in the second row
+covid<-read.csv("covid_agg.csv", header=TRUE) 
+covid
+
+# get the first few lines
+head(covid)
+
+# summarize the data
+summary(covid)
+
+# plot cases by lat and long
+ggplot(covid,aes(x=lon,y=lat))+geom_point()
+
+# there is one point per country
+
+# change size of points to reflect the number of cases per country
+ggplot(covid,aes(x=lon,y=lat,size=cases))+geom_point()
+

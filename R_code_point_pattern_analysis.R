@@ -38,3 +38,57 @@ plot(density_map,col=cl)
 # need a new package "rgdal"
 install.packages("rgdal")
 
+#### 2020-11-23 ####
+# lecture 6 # point pattern analysis
+
+# repeat previous lesson in R, then continue below
+# open rgdal library
+library(rgdal)
+
+# import coastlines
+coastlines<-readOGR("ne_10m_coastline.shp")
+coastlines
+
+# plot covid map again with coastlines
+plot(density_map)
+points(covid_planar)
+plot(coastlines, add = TRUE) # say "add  = TRUE" so that R knows we do want to add coastlines to the existing map, and not create a new one
+
+# change the colour ramp
+# change point symbol
+cl <- colorRampPalette(c('pink','green','orange','red','magenta'))(100) # 
+plot(density_map, col = cl)
+points(covid_planar, pch = 19) # one point per country, no matter how many cases they have, so density is much higher in Europe just because there are more countries in a smaller space 
+plot(coastlines, add = TRUE)
+
+cl <- colorRampPalette(c('pink','green','orange','red','magenta'))(100) # 
+plot(density_map, col = cl)
+points(covid_planar, pch = 19, cex = 0.5)
+plot(coastlines, add = TRUE)
+
+# save as a .png file
+png("figure1.png")
+cl <- colorRampPalette(c('pink','green','orange','red','magenta'))(100) #
+plot(density_map, col = cl)
+points(covid_planar, pch = 19, cex = 0.5)
+plot(coastlines, add = TRUE)
+dev.off()
+
+# save as a .pdf
+pdf("figure1.pdf")
+cl <- colorRampPalette(c('pink','green','orange','red','magenta'))(100) # 
+plot(density_map, col = cl)
+points(covid_planar, pch = 19, cex = 0.5)
+plot(coastlines, add = TRUE)
+dev.off()
+
+# use ggsave to alter size of saved image
+
+# interpolating case data
+# tell R to use cases
+# this shifts the density to the number of cases per country ? Watch lecture
+marks(covid_planar)<-cases
+cases_map<-Smooth(covid_planar)
+plot(cases_map, col = cl)
+points(covid_planar)
+plot(coastlines, add = T)

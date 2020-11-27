@@ -92,3 +92,65 @@ cases_map<-Smooth(covid_planar)
 plot(cases_map, col = cl)
 points(covid_planar)
 plot(coastlines, add = T)
+
+### 2020-11-27 ###
+# lecture 7
+
+# interpolate new data
+# plotting points with different sizes related to covid data together with the interpolated map
+
+# set working directory
+setwd("C:/Lab/")
+
+# covid data
+covid<-read.csv("covid_agg.csv", header=TRUE) 
+covid
+
+# attach covid data
+attach(covid)
+
+# load spatstat and rgdal
+library(spatstat)
+library(rgdal)
+
+# install sf
+install.packages("sf")
+library(sf)
+
+# load covid data
+covid<-read.csv("covid_agg.csv", header=TRUE) 
+covid
+
+# check data
+head(covid)
+
+# attach covid
+attach(covid)
+
+# watch lecture and add comments
+covid_planar <- ppp(lon, lat, c(-180,180), c(-90,90))
+
+
+# add colour palette
+Spoints <- st_as_sf(covid, coords = c("lon", "lat"))
+marks(covid_planar) <- cases # interpolation
+cases_map <- Smooth(covid_planar) # interpolation
+cl <- colorRampPalette(c('lightpink2','lightsalmon','tomato1','red3','maroon'))(100)
+density_map <- density(covid_planar)
+plot(density_map)
+plot(cases_map, col = cl)
+plot(coastlines, add = T)
+plot(Spoints, cex=Spoints$cases/10000, col = 'purple3', lwd = 3, add=T)
+
+# plot points according to number of cases?
+plot(Spoints, cex=Spoints$cases, col = 'purple3', lwd = 3, add=T)
+
+# divide cases by 10 000
+cl <- colorRampPalette(c('lightpink2','lightsalmon','tomato1','red3','maroon'))(100)
+plot(cases_map, col = cl)
+plot(Spoints, cex=Spoints$cases/10000, col = 'purple3', lwd = 3, add=T)
+
+coastlines <- readOGR("ne_10m_coastline.shp")
+plot(coastlines, add=T)
+
+

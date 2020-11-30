@@ -153,4 +153,32 @@ plot(Spoints, cex=Spoints$cases/10000, col = 'purple3', lwd = 3, add=T)
 coastlines <- readOGR("ne_10m_coastline.shp")
 plot(coastlines, add=T)
 
+#### 2020-11-30 ####
+# lecture 8 # UTMs and Leonardo's data
+
+# set working directory
+setwd("C:/Lab/")
+
+# load Zabotti data (about the lagoon)
+lagoon<-read.csv("dati_zabotti.csv", header=TRUE, sep=",") # says that commas separate the data (not sure if this is necessary)
+lagoon
+
+# call library 'spatstat'
+library(spatstat)
+
+# check, attach, summarize the data
+head(lagoon)
+attach(lagoon)
+summary(lagoon)
+
+# need to make a density and a smooth map
+# need to explain to using 'marks'
+# first make a ppp something
+lagoon_ppp <- ppp(x, y, c(2300000,2325000), c(5005000,5045000))
+
+# plot density map
+density_map<-density(lagoon_ppp)
+plot(density_map)
+# add points to the map of sites where data was taken
+points(lagoon_ppp)
 

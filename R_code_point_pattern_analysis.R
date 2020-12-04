@@ -182,3 +182,86 @@ plot(density_map)
 # add points to the map of sites where data was taken
 points(lagoon_ppp)
 
+#### 2020-12-04 ####
+# lecture 8 # interpolation
+
+# set working directory
+setwd("C:/Lab/")
+
+# load library
+library(spatstat)
+
+# load RData
+load("point_pattern_analysis.RData")
+# see list of files inside the Rdata (# remember that you called it 'lagoon', not 'leo' in the last lecture)
+ls()
+
+# check and attach the data
+head(leo)
+attach(leo)
+
+# something
+marks(leo_ppp)<-chlh
+chlh_map<-Smooth(leo_ppp)
+plot(chlh_map)
+point(leo_ppp)
+
+# there is too much blue, so we will make a new palette
+cl<-colorRampPalette(c('yellow','orange','red','green'))(100)
+plot(chlh_map, col=cl)
+points(leo_ppp)
+
+# chlorophyll on the west side is lowers
+# the green part of the map is the part of the lagoon with the highest productivity
+# he wants us to do the same thing but for chlorophyll in the sediments (chls)
+
+marks(leo_ppp)<-chls
+chls_map<-Smooth(leo_ppp)
+plot(chls_map)
+points(leo_ppp)
+
+# there is too much blue, so we will make a new palette
+cl<-colorRampPalette(c('yellow','orange','red','green'))(100)
+plot(chls_map, col=cl)
+points(leo_ppp)
+
+# make a multipanel
+# par function
+# mf = "multiframe"
+# mfrow = "I want these many rows and columns in the panel
+#par(mfrow = c(1,3)) means I want 1 row and 3 columns
+
+# density map first
+plot(density_map,col=cl)
+points(leo_ppp)
+
+# then map of chlorophyll in water (chlh)
+plot(chlh_map, col=cl)
+points(leo_ppp)
+
+# then map of chlorophyll in sediments (chls)
+plot(chls_map, col=cl)
+points(leo_ppp)
+
+# altogether now
+par(mfrow = c(1,3))
+plot(density_map,col=cl)
+points(leo_ppp)
+plot(chlh_map, col=cl)
+points(leo_ppp)
+plot(chls_map, col=cl)
+points(leo_ppp)
+
+# exercise: do it again, but with 3 rows and 1 column
+
+par(mfrow = c(3,1))
+plot(density_map,col=cl)
+points(leo_ppp)
+plot(chlh_map, col=cl)
+points(leo_ppp)
+plot(chls_map, col=cl)
+points(leo_ppp)
+
+
+
+

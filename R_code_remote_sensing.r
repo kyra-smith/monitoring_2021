@@ -1,13 +1,13 @@
 ### 2020-12-21###
-# R code for RS
+# R code for remote sensing data analysis in ecosystem
 
-# install.packages("raster")
+# load packages ("raster")
 library(raster)
+library(RStoolbox)
 
-setwd("~/lab/")
-# setwd("C:/lab/")  
-# windows
-# setwd("/Users/name/lab/")
+
+setwd("C:/lab/")  
+
 
 p224r63_2011 <- brick("p224r63_2011_masked.grd")
 

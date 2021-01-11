@@ -1,0 +1,34 @@
+# R code for exam!
+# need a library to read nc data (library ncdf)
+install.packages("ncdf4")
+library(ncdf4)
+library(raster)
+
+# set working directory
+setwd("C:/lab/Copernicus/")  
+
+# how to upload the data
+# his explaining the layers again
+# there is just one layer per file with this data (lst)
+# we will use the raster funtion
+
+# tjan = temperature january
+tjan <- raster("c_gls_LST10-DC_202101010000_GLOBE_GEO_V1.2.1.nc")
+plot(tjan)
+
+# Exercise: change colour using rampalette
+
+cltjan <- colorRampPalette(c('blue','yellow','red'))(100)
+plot(tjan,col=cltjan)
+
+# how can we compare values from October and January?
+# we need to find the difference in temperature per pixel
+
+#tcot = temperature october
+toct<-raster("c_gls_LST10-DC_202010010000_GLOBE_GEO_V1.2.1.nc")
+
+# dift = differnt in soil level temp in Jan and Oct
+dift<-tjan-toct
+
+cldift<-colorRampPalette(c('blue','white','red'))(100)
+plot(dift,col=cldift)

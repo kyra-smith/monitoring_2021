@@ -1,0 +1,199 @@
+## Set up ##
+# set working directory 
+setwd("C:/Lab/Exam/")
+
+# load libraries
+library(ggplot2)
+library(dplyr)
+library(rgdal)
+library(sp)
+library(spatstat)
+library(ncdf4)
+library(raster)
+library(rasterVis)
+
+# load shapefile of Great Lakes shoreline
+shoreline <- readOGR("us_medium_shoreline.shp")
+# crop to Bruce Peninsula
+Bruce<-c(-82,-80,44,45.5)
+shoreline <- crop(shoreline,Bruce)
+
+# load the phragmites data from 2017 - 2020
+phrag<-read.csv("phrag_4years.csv", header=TRUE) 
+
+## create new dataframe with only coordinates and substrate ##
+
+# filter to remove duplicates
+substrate <- phrag %>% filter(year=="2017")
+# discard irrelevant variables
+substrate <- subset(substrate, select = c ( x, y, sub_type))
+
+# check data
+head(phrag)
+summary(phrag)
+head(substrate)
+summary(substrate)
+
+## plot the density of sites along the shoreline ##
+
+# make a ppp (point planner pattern)
+attach(substrate)
+substrate_ppp <- ppp(x, y, c(463900,471900), c(4918400,4930000))
+# plot the density map
+density_map<-density(substrate_ppp)
+plot(density_map,main="Density of Sites")
+# add the points
+points(substrate_ppp)
+
+## plot of substrate type at each site ##
+
+# assign each substrate type a colour (water=blue, sand=yellow, soil=green)
+substrate$sub_type = as.factor(substrate$sub_type)
+color_easy = c("yellow","green","blue")[substrate$sub_type]
+coordinates(substrate)=~x+y
+# plot 
+sub_plot <- plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate type")
+legend("topleft",
+       legend = c("sand", "water", "soil"),
+       fill = c("yellow","blue","green"))
+sub_plot
+
+## check for relationship between substrate and site density ##
+# plot density map and substrate plot together
+par(mfrow=c(1,2))
+plot(density_map,main="Site Density")
+points(substrate_ppp)
+plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate type")
+legend("topleft",
+       legend = c("sand", "water", "soil"),
+       fill = c("yellow","blue","green"))
+       
+## examine how the number of stems at each site changes year-to-year ##
+# bubble plot of each year where bubble size represents the number of stems
+ggplot(phrag,aes(x=x,y=y,size=stems))+
+  geom_point(alpha=0.5, col="#A2CD5A")+
+  facet_grid(.~year)+
+  scale_x_continuous(name="easting",limits=c(463900,471900),breaks=seq(463900,471900,4000))+
+  theme(axis.text.x= element_text(margin=margin(t=10),angle=45))+
+  scale_y_continuous(name="northing",limits=c(4918400,4930000),breaks=seq(4918400,4930000,2500))+
+  ggtitle("Number of Stems/Site")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(color="Substrate", size="Number of Stems")
+
+# check for relationship between substrate and sites with most change 
+# bubble plot with substrate indicated by colour
+sub_type<-phrag$sub_type
+ggplot(phrag,aes(x=x,y=y,size=stems,color=sub_type))+
+  geom_point(alpha=0.5)+
+  scale_color_manual(values = c("yellow", "green","blue"))+
+  facet_grid(.~year)+
+  scale_x_continuous(name="easting",limits=c(463900,471900),breaks=seq(463900,471900,4000))+
+  theme(axis.text.x= element_text(margin=margin(t=10),angle=45))+
+  scale_y_continuous(name="northing",limits=c(4918400,4930000),breaks=seq(4918400,4930000,2500))+
+  ggtitle("Number of Stems/Site")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(color="Substrate", size="Number of Stems")
+  
+## remote sensing analysis of land and water temperature year-to-year ##
+
+# load LST and LWST data, collected August 1-20, 2017-2020 (source: Copernicus)
+LST_2017.1 <- raster("c_gls_LST10-DC_201708010000_GLOBE_GEO_V1.2.1.nc")
+LST_2017.2 <- raster("c_gls_LST10-DC_201708110000_GLOBE_GEO_V1.2.1.nc")
+LST_2018.1 <- raster("c_gls_LST10-DC_201808010000_GLOBE_GEO_V1.2.1.nc")
+LST_2018.2 <- raster("c_gls_LST10-DC_201808110000_GLOBE_GEO_V1.2.1.nc")
+LST_2019.1 <- raster("c_gls_LST10-DC_201908010000_GLOBE_GEO_V1.2.1.nc")
+LST_2019.2 <- raster("c_gls_LST10-DC_201908110000_GLOBE_GEO_V1.2.1.nc")
+LST_2020.1 <- raster("c_gls_LST10-DC_202008010000_GLOBE_GEO_V1.2.1.nc")
+LST_2020.2 <- raster("c_gls_LST10-DC_202008110000_GLOBE_GEO_V1.2.1.nc")
+LWST_2017.1 <- raster("c_gls_LSWT_201708010000_GLOBE_SLSTRA_v1.0.2.nc")
+LWST_2017.2 <- raster("c_gls_LSWT_201708110000_GLOBE_SLSTRA_v1.0.2.nc")
+LWST_2018.1 <- raster("c_gls_LSWT_201808010000_GLOBE_SLSTRA_v1.0.2.nc")
+LWST_2018.2 <- raster("c_gls_LSWT_201808110000_GLOBE_SLSTRA_v1.0.2.nc")
+LWST_2019.1 <- raster("c_gls_LSWT_201908010000_GLOBE_SLSTRA_v1.0.2.nc")
+LWST_2019.2 <- raster("c_gls_LSWT_201908110000_GLOBE_SLSTRA_v1.0.2.nc")
+LWST_2020.1 <- raster("c_gls_LSWT_202008010000_GLOBE_SLSTRA_v1.0.1.nc")
+LWST_2020.2 <- raster("c_gls_LSWT_202008110000_GLOBE_SLSTRA_v1.0.1.nc")
+
+# crop to show only the Bruce Peninsula
+LST_2017.1_Bruce <- crop(LST_2017.1, Bruce)
+LST_2017.2_Bruce <- crop(LST_2017.2, Bruce)
+LST_2018.1_Bruce <- crop(LST_2018.1, Bruce)
+LST_2018.2_Bruce <- crop(LST_2018.2, Bruce)
+LST_2019.1_Bruce <- crop(LST_2019.1, Bruce)
+LST_2019.2_Bruce <- crop(LST_2019.2, Bruce)
+LST_2020.1_Bruce <- crop(LST_2020.1, Bruce)
+LST_2020.2_Bruce <- crop(LST_2020.2, Bruce)
+LWST_2017.1_Bruce <- crop(LWST_2017.1, Bruce)
+LWST_2017.2_Bruce <- crop(LWST_2017.2, Bruce)
+LWST_2018.1_Bruce <- crop(LWST_2018.1, Bruce)
+LWST_2018.2_Bruce <- crop(LWST_2018.2, Bruce)
+LWST_2019.1_Bruce <- crop(LWST_2019.1, Bruce)
+LWST_2019.2_Bruce <- crop(LWST_2019.2, Bruce)
+LWST_2020.1_Bruce <- crop(LWST_2020.1, Bruce)
+LWST_2020.2_Bruce <- crop(LWST_2020.2, Bruce)
+
+# take average LST and LWST for each year
+LST_2017 <- (LST_2017.1_Bruce+LST_2017.2_Bruce)/2
+LST_2018 <- (LST_2018.1_Bruce+LST_2018.2_Bruce)/2
+LST_2019 <- (LST_2019.1_Bruce+LST_2019.2_Bruce)/2
+LST_2020 <- (LST_2020.1_Bruce+LST_2020.2_Bruce)/2
+LWST_2017 <- (LWST_2017.1_Bruce+LWST_2017.2_Bruce)/2
+LWST_2018 <- (LWST_2018.1_Bruce+LWST_2018.2_Bruce)/2
+LWST_2019 <- (LWST_2019.1_Bruce+LWST_2019.2_Bruce)/2
+LWST_2020 <- (LWST_2020.1_Bruce+LWST_2020.2_Bruce)/2
+
+## plot temperature averages ##
+
+# use new colour palette
+cl<-colorRampPalette(c('#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#b10026'))(100)
+
+# plot temperature averages using par()
+par(mfrow=c(2,4))
+plot(LST_2017,col=cl,main="2017")
+plot(shoreline,add=TRUE)
+plot(LST_2018,col=cl,main="2018")
+plot(shoreline,add=TRUE)
+plot(LST_2019,col=cl,main="2019")
+plot(shoreline,add=TRUE)
+plot(LST_2020,col=cl,main="2020")
+plot(shoreline,add=TRUE)
+plot(LWST_2017,col=cl)
+plot(shoreline,add=TRUE)
+plot(LWST_2018,col=cl)
+plot(shoreline,add=TRUE)
+plot(LWST_2019,col=cl)
+plot(shoreline,add=TRUE)
+plot(LWST_2020,col=cl)
+plot(shoreline,add=TRUE)
+mtext("Land Surface Temperature (LST)", font=2, side = 3, line = -16, outer = TRUE)
+mtext("Lake Water Surface Temperature (LWST)", font=2, side = 3, line = -33, outer= TRUE)
+
+# calculate difference between 2017 temperatures and each successive year to see temperature progression
+diff18_LST <- LST_2018-LST_2017
+diff19_LST <- LST_2019-LST_2017
+diff20_LST <- LST_2020-LST_2017
+diff18_LWST <- LWST_2018-LWST_2017
+diff19_LWST <- LWST_2019-LWST_2017
+diff20_LWST <- LWST_2020-LWST_2017
+
+# use new colour palette to show positive and negative changes
+cldif<-colorRampPalette(c('blue','white','red'))(100)
+
+# plot temperature progression using par()
+par(mfrow=c(2,3))
+plot(diff18_LST,col=cldif,zlim=c(-0.6,0.6),main="2018")
+plot(shoreline,add=TRUE)
+plot(diff19_LST,col=cldif,zlim=c(-0.6,0.6),main="2019")
+plot(shoreline,add=TRUE)
+plot(diff20_LST,col=cldif,zlim=c(-0.6,0.6),main="2020")
+plot(shoreline,add=TRUE)
+plot(diff18_LWST,col=cldif,zlim=c(-8,8))
+plot(shoreline,add=TRUE)
+plot(diff19_LWST,col=cldif,zlim=c(-8,8))
+plot(shoreline,add=TRUE)
+plot(diff20_LWST,col=cldif,zlim=c(-8,8))
+plot(shoreline,add=TRUE)
+mtext("Change in LST Since 2017", font=2, side = 3, line = -16, outer = TRUE)
+mtext("Change in LWST Since 2017",font=2, side = 3, line = -33, outer = TRUE)
+
+

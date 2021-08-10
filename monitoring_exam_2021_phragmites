@@ -19,29 +19,31 @@ Bruce<-c(-82,-80,44,45.5)
 shoreline <- crop(shoreline,Bruce)
 
 # load the phragmites data from 2017 - 2020
-phrag<-read.csv("phrag_4years.csv", header=TRUE) 
+phragmites<-read.csv("phrag_4years.csv", header=TRUE) 
+
+# check data
+head(phragmites)
+summary(phragmites)
 
 ## create new dataframe with only coordinates and substrate ##
 
 # filter to remove duplicates
-substrate <- phrag %>% filter(year=="2017")
+substrate <- phragmites %>% filter(year=="2017")
 # discard irrelevant variables
 substrate <- subset(substrate, select = c ( x, y, sub_type))
 
 # check data
-head(phrag)
-summary(phrag)
 head(substrate)
 summary(substrate)
 
-## plot the density of sites along the shoreline ##
+## plot the distribution sites along the shoreline, using density map to look for clusters ##
 
 # make a ppp (point planner pattern)
 attach(substrate)
 substrate_ppp <- ppp(x, y, c(463900,471900), c(4918400,4930000))
 # plot the density map
 density_map<-density(substrate_ppp)
-plot(density_map,main="Density of Sites")
+plot(density_map,main="Site Distribution")
 # add the points
 points(substrate_ppp)
 
@@ -52,48 +54,48 @@ substrate$sub_type = as.factor(substrate$sub_type)
 color_easy = c("yellow","green","blue")[substrate$sub_type]
 coordinates(substrate)=~x+y
 # plot 
-sub_plot <- plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate type")
+sub_plot <- plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate Type")
 legend("topleft",
        legend = c("sand", "water", "soil"),
        fill = c("yellow","blue","green"))
 sub_plot
 
-## check for relationship between substrate and site density ##
+## check for relationship between substrate and site distribution ##
 # plot density map and substrate plot together
 par(mfrow=c(1,2))
-plot(density_map,main="Site Density")
+plot(density_map,main="Site Distribution")
 points(substrate_ppp)
-plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate type")
+plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate Type")
 legend("topleft",
        legend = c("sand", "water", "soil"),
        fill = c("yellow","blue","green"))
-       
+
 ## examine how the number of stems at each site changes year-to-year ##
 # bubble plot of each year where bubble size represents the number of stems
-ggplot(phrag,aes(x=x,y=y,size=stems))+
+ggplot(phragmites,aes(x=x,y=y,size=density))+
   geom_point(alpha=0.5, col="#A2CD5A")+
   facet_grid(.~year)+
   scale_x_continuous(name="easting",limits=c(463900,471900),breaks=seq(463900,471900,4000))+
   theme(axis.text.x= element_text(margin=margin(t=10),angle=45))+
   scale_y_continuous(name="northing",limits=c(4918400,4930000),breaks=seq(4918400,4930000,2500))+
-  ggtitle("Number of Stems/Site")+
+  ggtitle("Stem Density")+
   theme(plot.title = element_text(hjust = 0.5))+
-  labs(color="Substrate", size="Number of Stems")
+  labs(color="Substrate", size="Stems/sq.metre")
 
 # check for relationship between substrate and sites with most change 
 # bubble plot with substrate indicated by colour
-sub_type<-phrag$sub_type
-ggplot(phrag,aes(x=x,y=y,size=stems,color=sub_type))+
+sub_type<-phragmites$sub_type
+ggplot(phragmites,aes(x=x,y=y,size=density,color=sub_type))+
   geom_point(alpha=0.5)+
   scale_color_manual(values = c("yellow", "green","blue"))+
   facet_grid(.~year)+
   scale_x_continuous(name="easting",limits=c(463900,471900),breaks=seq(463900,471900,4000))+
   theme(axis.text.x= element_text(margin=margin(t=10),angle=45))+
   scale_y_continuous(name="northing",limits=c(4918400,4930000),breaks=seq(4918400,4930000,2500))+
-  ggtitle("Number of Stems/Site")+
+  ggtitle("Stem Density")+
   theme(plot.title = element_text(hjust = 0.5))+
-  labs(color="Substrate", size="Number of Stems")
-  
+  labs(color="Substrate", size="Stems/sq.metre")
+
 ## remote sensing analysis of land and water temperature year-to-year ##
 
 # load LST and LWST data, collected August 1-20, 2017-2020 (source: Copernicus)
@@ -142,6 +144,14 @@ LWST_2018 <- (LWST_2018.1_Bruce+LWST_2018.2_Bruce)/2
 LWST_2019 <- (LWST_2019.1_Bruce+LWST_2019.2_Bruce)/2
 LWST_2020 <- (LWST_2020.1_Bruce+LWST_2020.2_Bruce)/2
 
+# calculate difference between 2017 temperatures and each successive year to see temperature progression
+diff18_LST <- LST_2018-LST_2017
+diff19_LST <- LST_2019-LST_2017
+diff20_LST <- LST_2020-LST_2017
+diff18_LWST <- LWST_2018-LWST_2017
+diff19_LWST <- LWST_2019-LWST_2017
+diff20_LWST <- LWST_2020-LWST_2017
+
 ## plot temperature averages ##
 
 # use new colour palette
@@ -165,16 +175,8 @@ plot(LWST_2019,col=cl)
 plot(shoreline,add=TRUE)
 plot(LWST_2020,col=cl)
 plot(shoreline,add=TRUE)
-mtext("Land Surface Temperature (LST)", font=2, side = 3, line = -16, outer = TRUE)
-mtext("Lake Water Surface Temperature (LWST)", font=2, side = 3, line = -33, outer= TRUE)
-
-# calculate difference between 2017 temperatures and each successive year to see temperature progression
-diff18_LST <- LST_2018-LST_2017
-diff19_LST <- LST_2019-LST_2017
-diff20_LST <- LST_2020-LST_2017
-diff18_LWST <- LWST_2018-LWST_2017
-diff19_LWST <- LWST_2019-LWST_2017
-diff20_LWST <- LWST_2020-LWST_2017
+mtext("Land Surface Temperature (LST)", font=2, side = 3, line = -17, outer = TRUE)
+mtext("Lake Water Surface Temperature (LWST)", font=2, side = 3, line = -34, outer= TRUE)
 
 # use new colour palette to show positive and negative changes
 cldif<-colorRampPalette(c('blue','white','red'))(100)
@@ -193,7 +195,5 @@ plot(diff19_LWST,col=cldif,zlim=c(-8,8))
 plot(shoreline,add=TRUE)
 plot(diff20_LWST,col=cldif,zlim=c(-8,8))
 plot(shoreline,add=TRUE)
-mtext("Change in LST Since 2017", font=2, side = 3, line = -16, outer = TRUE)
-mtext("Change in LWST Since 2017",font=2, side = 3, line = -33, outer = TRUE)
-
-
+mtext("Change in LST Since 2017", font=2, side = 3, line = -17, outer = TRUE)
+mtext("Change in LWST Since 2017",font=2, side = 3, line = -34, outer = TRUE)

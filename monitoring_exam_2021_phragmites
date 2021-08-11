@@ -19,7 +19,7 @@ Bruce<-c(-82,-80,44,45.5)
 shoreline <- crop(shoreline,Bruce)
 
 # load the phragmites data from 2017 - 2020
-phragmites<-read.csv("phrag_4years.csv", header=TRUE) 
+phragmites<-read.csv("phrag_density.csv", header=TRUE) 
 
 # check data
 head(phragmites)
@@ -144,14 +144,6 @@ LWST_2018 <- (LWST_2018.1_Bruce+LWST_2018.2_Bruce)/2
 LWST_2019 <- (LWST_2019.1_Bruce+LWST_2019.2_Bruce)/2
 LWST_2020 <- (LWST_2020.1_Bruce+LWST_2020.2_Bruce)/2
 
-# calculate difference between 2017 temperatures and each successive year to see temperature progression
-diff18_LST <- LST_2018-LST_2017
-diff19_LST <- LST_2019-LST_2017
-diff20_LST <- LST_2020-LST_2017
-diff18_LWST <- LWST_2018-LWST_2017
-diff19_LWST <- LWST_2019-LWST_2017
-diff20_LWST <- LWST_2020-LWST_2017
-
 ## plot temperature averages ##
 
 # use new colour palette
@@ -159,24 +151,32 @@ cl<-colorRampPalette(c('#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2
 
 # plot temperature averages using par()
 par(mfrow=c(2,4))
-plot(LST_2017,col=cl,main="2017")
+plot(LST_2017,col=cl,zlim=c(0.3,0.8),main="2017")
 plot(shoreline,add=TRUE)
-plot(LST_2018,col=cl,main="2018")
+plot(LST_2018,col=cl,zlim=c(0.3,0.8),main="2018")
 plot(shoreline,add=TRUE)
-plot(LST_2019,col=cl,main="2019")
+plot(LST_2019,col=cl,zlim=c(0.3,0.8),main="2019")
 plot(shoreline,add=TRUE)
-plot(LST_2020,col=cl,main="2020")
+plot(LST_2020,col=cl,zlim=c(0.3,0.8),main="2020")
 plot(shoreline,add=TRUE)
-plot(LWST_2017,col=cl)
+plot(LWST_2017,col=cl,zlim=c(282,300))
 plot(shoreline,add=TRUE)
-plot(LWST_2018,col=cl)
+plot(LWST_2018,col=cl,zlim=c(282,300))
 plot(shoreline,add=TRUE)
-plot(LWST_2019,col=cl)
+plot(LWST_2019,col=cl,zlim=c(282,300))
 plot(shoreline,add=TRUE)
-plot(LWST_2020,col=cl)
+plot(LWST_2020,col=cl,zlim=c(282,300))
 plot(shoreline,add=TRUE)
-mtext("Land Surface Temperature (LST)", font=2, side = 3, line = -17, outer = TRUE)
-mtext("Lake Water Surface Temperature (LWST)", font=2, side = 3, line = -34, outer= TRUE)
+mtext("Land Surface Temperature (LST)", font=2, side = 3, line = -16, outer = TRUE)
+mtext("Lake Water Surface Temperature (LWST)", font=2, side = 3, line = -32, outer= TRUE)
+
+# calculate difference between 2017 temperatures and each successive year to see temperature progression
+diff18_LST <- LST_2018-LST_2017
+diff19_LST <- LST_2019-LST_2017
+diff20_LST <- LST_2020-LST_2017
+diff18_LWST <- LWST_2018-LWST_2017
+diff19_LWST <- LWST_2019-LWST_2017
+diff20_LWST <- LWST_2020-LWST_2017
 
 # use new colour palette to show positive and negative changes
 cldif<-colorRampPalette(c('blue','white','red'))(100)

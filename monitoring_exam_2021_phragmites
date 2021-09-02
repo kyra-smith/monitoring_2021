@@ -58,7 +58,6 @@ sub_plot <- plot(substrate,pch=1,col=color_easy,cex=0.5,main="Substrate Type")
 legend("topleft",
        legend = c("sand", "water", "soil"),
        fill = c("yellow","blue","green"))
-sub_plot
 
 ## check for relationship between substrate and site distribution ##
 # plot density map and substrate plot together

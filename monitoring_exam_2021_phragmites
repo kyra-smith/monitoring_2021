@@ -36,12 +36,12 @@ substrate <- subset(substrate, select = c ( x, y, sub_type))
 head(substrate)
 summary(substrate)
 
-## plot the distribution sites along the shoreline, using density map to look for clusters ##
+## plot the distribution sites along the shoreline ##
 
 # make a ppp (point planner pattern)
 attach(substrate)
 substrate_ppp <- ppp(x, y, c(463900,471900), c(4918400,4930000))
-# plot the density map
+# plot the density map to look for clusters 
 density_map<-density(substrate_ppp)
 plot(density_map,main="Site Distribution")
 # add the points
